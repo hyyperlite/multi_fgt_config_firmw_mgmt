@@ -1,0 +1,22 @@
+# apikey can be added to a fg device file using fg_api_key_gen.py
+# api key based api auth is required on fg to do image upgrade or config restore
+# fg_backup_from_list.py can use admin/passwd api login or api key.
+fortigates:
+  fg1:
+    apikey: 1Hr004Hskt3ff0dzH7GyHNxsNyHy9N
+    ip: 192.168.1.1
+    login: admin
+    password: fortinet
+  f2:
+    apikey: phcsnjnfgkm90cq87N6jhppr9stsch
+    ip: 192.168.1.2
+    login: admin
+    password: fortinet
+  fg3:
+    ip: 10.99.224.10
+    login: admin
+    password: fortinet
+# Tags are used for naming backup files (fg_backup_from_list.py)
+tags:
+  lab: sdwan_basic_72
+  note: null
