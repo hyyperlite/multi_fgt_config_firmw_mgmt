@@ -21,19 +21,19 @@ exist.  If they do not, it will use SSH (paramiko) to SSH to the FG, login
 with admin/password and create the necessary accprof and api-user;
 and generate/retrieve an api key for the device.
 
-Note: For restore_of_fg config you must user pre-existing "super_admin" accprof
-Thus that is the default. If you use the default "super_admin" accprof, then
-checks of its existence are skipped.
+Note: For restoring config to FG, you must user pre-existing "super_admin" accprof.
+Thus "super_admin" is the default. If you use the default "super_admin" accprof, then
+checking for its existence are skipped because it is default and cannot be deleted in FG.
 
 The script takes a file in yaml format with a list of fortigates, including
 mgmt ip, login, password information.  Will login to each and create the
 previously described accprof, api-user and get the api key.  It will then write
-the API key as a parameter in the fg yaml file so that the key may be used with
-for api access in other programs.
+the API key as a parameter in the fg yaml file so that the key may be used for
+api access in other programs.
 
 I had hoped to assign the api key to a value that could be the same across all FGs
-in my yaml list.  However, although the cli option exists to set it, it always
-gives error when try to set it manually.  Thus must generate and record it.
+in my yaml list.  However, although the cli option exists to set a key manually, 
+it always gives error when try to set it manually.  Thus must generate and record it.
 """
 
 from modules.common import *
