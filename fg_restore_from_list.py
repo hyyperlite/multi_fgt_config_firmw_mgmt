@@ -106,10 +106,16 @@ if __name__ == '__main__':
 
         # If we can find a config file containing the device's name, then select that file
         for cfile in restore_files:
+            if args.verbose:
+              print('  Comparing:')
+              print(f'    {fg} --> {cfile}')
+
             if fg in cfile:
                 config_file = f'{args.backup_dir}/{cfile}'
                 print(f'  Restore Config:   {config_file}')
                 break
+            else:
+                config_file = None
 
         if config_file:
             """ Create instances of fg_api_utils with device details """
@@ -135,3 +141,5 @@ if __name__ == '__main__':
 
             else:
                 print(f'  Failed: {msg}')
+        else:
+            print('  Error: No Config file match found.')
