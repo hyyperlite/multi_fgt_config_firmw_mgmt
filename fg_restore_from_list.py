@@ -37,7 +37,6 @@ from modules.fortigate_api_utils import *
 from modules.common import *
 import argparse
 from str2bool import str2bool
-import yaml
 import os
 import sys
 
@@ -46,8 +45,8 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--device_file', type=str, default=False)
 parser.add_argument('--yaml_dir', type=str, default=False, help='Folder where device files are, use this instead of --device_file \
-                    and cli will prompt to select one of yaml files from this directory')
-parser.add_argument('--backup_dir', type=str, default='data/backups/2023-12-22-114336-fgsp_vlans')
+                                  and cli will prompt to select one of yaml files from this directory')
+parser.add_argument('--backup_dir', type=str, help='Path to backup directory to get files for restore from')
 parser.add_argument('--debug', type=str2bool, default=False, help='Flag, enable debug output for API calls')
 parser.add_argument('--verbose', type=str2bool, default=False, help='Flag, output operational details')
 parser.add_argument('--skip_list', type=str, default=None,
@@ -72,6 +71,15 @@ if __name__ == '__main__':
             print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
             raise SystemExit
 
+    if args.backup_dir:
+    # Make sure the target backup folder path exists, if provided. 
+        if not os.path.exists(args.backup_dir):
+            print(f"Error backup (restore from) directory path {args.backup_dir} is not valid, Aborting")
+    else:
+        # If --backup_dir not provided as parmeter then prompt user for the path, validate it, then move on
+        # From modules/common call get_user_dir_path
+        args.backup_dir = get_user_dir_path('Backup/Restore')
+
     # Read device details from file, read_device_file from "common" module
     fgs = read_device_file(args.device_file)
     if not fgs:
@@ -83,7 +91,7 @@ if __name__ == '__main__':
         restore_files = os.listdir(args.backup_dir)
     except OSError as e:
         print(f'Error opening config file directory {args.backup_dir}, aborting: {e}')
-        sys.exit()
+        raise SystemExit
     if args.verbose:
         print(f'Configurations List: {restore_files}')
 
