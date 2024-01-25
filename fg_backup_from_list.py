@@ -40,16 +40,13 @@ be ignored.
 Additionally, for backups, in the device yaml file a "tags" attributes with sub-attributes "lab" & "notes" can
 be defined.  These tags will be used "if defined" in the file or directory naming for the resulting device backup files.
 ------------------------------------------
-tags:
-    lab: my fortigate lab
-    notes:  version 1.1
+lab_name: "this_is_my_lab_name"
 """
 
 from modules.fortigate_api_utils import *
 from modules.common import *
 import argparse
 from str2bool import str2bool
-#import yaml   # pyYAML
 import os
 import sys
 import datetime
@@ -58,11 +55,17 @@ import datetime
 # Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--device_file', default=None, type=str, help="yaml file with device details")
-parser.add_argument('--yaml_dir', default=None, type=str, help='Instead of --device_file may pass a directory containing yaml files \
-                      will then be prompted to select a file from this dir at runtime.')
-parser.add_argument('--backup_dir', type=str, help='directory to put backups in', required=True)
+parser.add_argument('--yaml_dir', default=None, type=str, help='Instead of --device_file may pass a directory containing yaml files, \
+                      will then be prompted to select a file from this directory at runtime.')
+parser.add_argument('--backup_dir', type=str, default=None, help='directory to put backups in')
 parser.add_argument('--create_new_dir', type=str2bool, default=True,
-                    help='If true, create a new directory for backups each type script is run')
+                    help='If true, create a new directory for backups each time script is run')
+parser.add_argument('--lab_name_from', type=str, choices=['none', 'prompt', 'yaml'], default='prompt', \
+                                       help='Optionally for detailed backup directory naming, \
+                                             provide lab_name via one of: \
+                                             none="just use date/time", \
+                                             prompt="prompt user input on cli" \
+                                             yaml="get lab name from lab_name param in device yaml file"')
 parser.add_argument('--debug', type=str2bool, default=False, help='Flag, enable debug output for API calls')
 parser.add_argument('--verbose', type=str2bool, default=False, help='Flag, output operational details')
 parser.add_argument('--skip_list', type=str, default=None,
@@ -78,23 +81,28 @@ if __name__ == '__main__':
     # Check if --device_file or --yaml_dir parameters passed
     if not args.device_file:
         if args.yaml_dir:
-            # From "common" module, call user_file_selection function
+            # From modules/common call user_file_selection function
             # This will get a list of files in --yaml_dir directory and prompt user to select one
             args.device_file = user_file_selection(args.yaml_dir)
         else:
             print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
             raise SystemExit
 
+    if args.backup_dir:
+        # Make sure the target backup folder path exists, if provided. 
+        if not os.path.exists(args.backup_dir):
+            print(f"Error backup directory path {args.backup_dir} is not valid, Aborting")
+    else:
+        # If --backup_dir not provided as parmeter then prompt user for the path, validate it, then move on
+        # From modules/common call get_user_dir_path
+        args.backup_dir = get_user_dir_path('Backup')
+
     # Read device details from file
+    # From modules/common call read_device_file
     fgs = read_device_file(args.device_file)
     if not fgs:
         print("!!! Failed to read device file.  Aborting")
         raise SystemExit
-
-    # Make sure the target backup folder path exists, if not exit
-    if not os.path.exists(args.backup_dir):
-        print(f"Error backup directory path {args.backup_dir} is not valid, aborting")
-        sys.exit()
 
     # list of words that if in name of fg device then we will skip that device
     if args.skip_list:
@@ -106,20 +114,17 @@ if __name__ == '__main__':
             sys.exit()
 
     # Some logic for some file tagging options that can be derived from the yaml file
-    lab_name = None
-    note = None
-    if 'tags' in fgs:
-        if 'lab' in fgs['tags'] and fgs['tags'].get('lab') is not None:
-            lab_name = fgs['tags'].get('lab')
+    if args.lab_name_from == 'yaml' and 'lab_name' in fgs:
+            lab_name = fgs['lab_name']
 
-        if 'note' in fgs['tags'] and fgs['tags'].get('note') is not None:
-            note = fgs['tags'].get('note')
+    if args.lab_name_from == 'prompt':
+        print('Enter lab name for use in file naming (concise)')
+        lab_name = input('Lab name > ')
+        print()
 
     # Set tag for use in backup folder name
     date_tag = f'{datetime.date.today()}-{datetime.datetime.now().strftime("%H%M%S")}'
-    if lab_name and note:
-        backup_tag = f'-{lab_name}--{note}'
-    elif lab_name:
+    if lab_name:
         backup_tag = f'-{lab_name}'
     else:
         backup_tag = ''

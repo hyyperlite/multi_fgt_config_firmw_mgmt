@@ -1,5 +1,6 @@
 import yaml
 import os
+import platform
 
 def read_device_file(dev_file, type='yaml'):
     """
@@ -56,6 +57,7 @@ def user_file_selection(fdir):
             print(f'Failed to process input {e}, Aborting')
 
         # User input validation
+        print()
         if uinput not in fdir_idx and uinput.upper() != "Q":
             print(f'!!! You must select/input one of {fdir_idx[0]} - {fdir_idx[-1]} or "Q":')
         else:
@@ -67,3 +69,32 @@ def user_file_selection(fdir):
         valid_input = True
 
     return f"{fdir}/{fdir_files[int(uinput)]}"
+
+def get_user_dir_path(dir_type):
+    """
+    Prompt user to provide directory path.  Validate the path and return it.
+    """
+    input_valid = False
+    print(f'Input {dir_type} directory path or "Q" to quit:')
+    while not input_valid:
+        try:
+            uinput = input('Enter path > ')
+            print()
+        except Exception as e:
+            print('Unable to get/process user input, Aborting')
+            print()
+
+        # Quit if user input is q or Q
+        if uinput.upper() == 'Q':
+            print("Goodbye")
+            raise SystemExit
+
+        # Validate folder exists
+        if os.path.exists(uinput.lstrip().rstrip()):
+            input_valid = True
+        else:
+            print(f"Note: This program is running from {platform.system()} path should be in {platform.system()} format")
+            print("Directory provided does not exist.  Enter another path or 'Q' to quit")
+            print()
+
+    return uinput
