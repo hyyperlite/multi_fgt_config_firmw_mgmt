@@ -16,7 +16,7 @@ fortigates:
     ip: 10.99.224.10
     login: admin
     password: fortinet
-# Tags are used for naming backup files (fg_backup_from_list.py)
-tags:
-  lab: sdwan_basic_72
-  note: null
+# lab_name may be used by backup script for naming directory that will contain the fg backups
+# This is only done if the --lab_name_from parameter is set to yaml. Other options are prompt
+# for input or do not use lab_name
+lab_name = "my_lab_name"
