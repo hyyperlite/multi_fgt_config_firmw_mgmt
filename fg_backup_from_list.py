@@ -37,8 +37,9 @@ be used over login/password for api calls. Also note, that other attributes may 
 attribute and will be ignored.  Additionally, other top level attributes besides "fortigates" may be defined and will
 be ignored.
 
-Additionally, for backups, in the device yaml file a "tags" attributes with sub-attributes "lab" & "notes" can
-be defined.  These tags will be used "if defined" in the file or directory naming for the resulting device backup files.
+Additionally, for backups, in the device yaml file a lab_name attribute can be defined. 
+This will be used "if defined", in the file or directory naming for the resulting device backup files.
+This is used if --lab_name_from is passed with "yaml" value.  Otherwise by default user is prompted for this info.
 ------------------------------------------
 lab_name: "this_is_my_lab_name"
 """
@@ -56,22 +57,21 @@ import datetime
 parser = argparse.ArgumentParser()
 parser.add_argument('--device_file', default=None, type=str, help="yaml file with device details")
 parser.add_argument('--yaml_dir', default=None, type=str, help='Instead of --device_file may pass a directory containing yaml files, \
-                      will then be prompted to select a file from this directory at runtime.')
+                       will then be prompted to select a file from this directory at runtime.')
 parser.add_argument('--backup_dir', type=str, default=None, help='directory to put backups in')
 parser.add_argument('--create_new_dir', type=str2bool, default=True,
-                    help='If true, create a new directory for backups each time script is run')
+                       help='If true, create a new directory for backups each time script is run')
 parser.add_argument('--lab_name_from', type=str, choices=['none', 'prompt', 'yaml'], default='prompt', \
-                                       help='Optionally for detailed backup directory naming, \
-                                             provide lab_name via one of: \
-                                             none="just use date/time", \
-                                             prompt="prompt user input on cli" \
-                                             yaml="get lab name from lab_name param in device yaml file"')
+                       help='Optionally for detailed backup directory naming, provide lab name via one of: \
+                             none="just use date/time", \
+                             prompt="prompt user input on cli" \
+                             yaml="get lab name from lab_name param in device yaml file"')
 parser.add_argument('--debug', type=str2bool, default=False, help='Flag, enable debug output for API calls')
 parser.add_argument('--verbose', type=str2bool, default=False, help='Flag, output operational details')
 parser.add_argument('--skip_list', type=str, default=None,
-                    help='Optionally, provide path to file with list of words in which if the word is in the name '
-                         'of any of the device\'s names in yaml file, backups for that device will be skipped. '
-                         'If not defined, no name checks will be performed')
+                       help='Optionally, provide path to file with list of words in which if the word is in the name '
+                            'of any of the device\'s names in yaml file, backups for that device will be skipped. '
+                            'If not defined, no name checks will be performed')
 args = parser.parse_args()
 
 #######################
