@@ -29,6 +29,7 @@ be ignored.
 
 
 from modules.fortigate_api_utils import *
+from modules.common import *
 import argparse
 from str2bool import str2bool
 import yaml
@@ -38,7 +39,9 @@ import sys
 
 # Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--device_file', type=str)
+parser.add_argument('--device_file', type=str, help="yaml file with device data")
+parser.add_argument('--yaml_dir', type=str, help='Instead of --device_file may pass a directory containing yaml files \
+                      will then be prompted to select a file from this dir at runtime.')
 parser.add_argument('--upgrade_source', type=str, choices=['file', 'fortiguard'])
 parser.add_argument('--img_ver_rev', type=str, default=None,
                     help='The value assigned to this parameter will depend on the value selected in the '
@@ -58,6 +61,15 @@ args = parser.parse_args()
 # Main
 #######################
 if __name__ == '__main__':
+      # Check if --device_file or --yaml_dir parameters passed
+    if not args.device_file:
+        if args.yaml_dir:
+            # from "common" module, call user_file_selection function
+            args.device_file = user_file_selection(args.yaml_dir)
+        else:
+            print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
+            raise SystemExit
+
     try:
         # Open device file for reading
         with open(args.device_file) as file:

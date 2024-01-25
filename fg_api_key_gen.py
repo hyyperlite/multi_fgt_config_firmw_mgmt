@@ -46,7 +46,9 @@ from str2bool import str2bool
 
 # Argument processing
 parser = argparse.ArgumentParser()
-parser.add_argument('--device_file', help='path to yaml file with device details')
+parser.add_argument('--device_file', default=None, help='path to yaml file with device details')
+parser.add_argument('--yaml_dir', default=None, help='Instead of --device_file may pass a directory containing yaml files \
+                      will then be prompted to select a file from this dir at runtime.')
 parser.add_argument('--api_user', help='Fortigate api-user')
 parser.add_argument('--accprof', default='super_admin', help='Fortigate account profile (accprof) to apply to api-user')
 parser.add_argument('--vdom', default='root', help='specify vdom for api-user if other than "root" this may be a list\
@@ -97,6 +99,14 @@ def check_vdom_mode(my_api):
 # Main
 #######################
 if __name__ == '__main__':
+    # Check if --device_file or --yaml_dir parameters passed
+    if not args.device_file:
+        if args.yaml_dir:
+            # from "common" module, call user_file_selection function
+            args.device_file = user_file_selection(args.yaml_dir)
+        else:
+            print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
+            raise SystemExit
 
     # Read device details from file
     fgs = read_device_file(args.device_file)

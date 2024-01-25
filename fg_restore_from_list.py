@@ -44,7 +44,9 @@ import sys
 
 # Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--device_file', type=str, default='data/yaml/fgsp_vlans.yml')
+parser.add_argument('--device_file', type=str, default=False)
+parser.add_argument('--yaml_dir', type=str, default=False, help='Folder where device files are, use this instead of --device_file \
+                    and cli will prompt to select one of yaml files from this directory')
 parser.add_argument('--backup_dir', type=str, default='data/backups/2023-12-22-114336-fgsp_vlans')
 parser.add_argument('--debug', type=str2bool, default=False, help='Flag, enable debug output for API calls')
 parser.add_argument('--verbose', type=str2bool, default=False, help='Flag, output operational details')
@@ -61,7 +63,16 @@ config_file = False
 # Main
 #######################
 if __name__ == '__main__':
-     # Read device details from file
+    # Check if --device_file or --yaml_dir parameters passed
+    if not args.device_file:
+        if args.yaml_dir:
+            # from "common" module, call user_file_selection function
+            args.device_file = user_file_selection(args.yaml_dir)
+        else:
+            print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
+            raise SystemExit
+
+    # Read device details from file, read_device_file from "common" module
     fgs = read_device_file(args.device_file)
     if not fgs:
         print("!!! Failed to read device file.  Aborting")

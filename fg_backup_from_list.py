@@ -49,7 +49,7 @@ from modules.fortigate_api_utils import *
 from modules.common import *
 import argparse
 from str2bool import str2bool
-import yaml   # pyYAML
+#import yaml   # pyYAML
 import os
 import sys
 import datetime
@@ -57,7 +57,9 @@ import datetime
 
 # Arguments
 parser = argparse.ArgumentParser()
-parser.add_argument('--device_file', type=str, help="yaml file with device details", required=True)
+parser.add_argument('--device_file', default=None, type=str, help="yaml file with device details")
+parser.add_argument('--yaml_dir', default=None, type=str, help='Instead of --device_file may pass a directory containing yaml files \
+                      will then be prompted to select a file from this dir at runtime.')
 parser.add_argument('--backup_dir', type=str, help='directory to put backups in', required=True)
 parser.add_argument('--create_new_dir', type=str2bool, default=True,
                     help='If true, create a new directory for backups each type script is run')
@@ -73,6 +75,15 @@ args = parser.parse_args()
 # Main
 #######################
 if __name__ == '__main__':
+    # Check if --device_file or --yaml_dir parameters passed
+    if not args.device_file:
+        if args.yaml_dir:
+            # From "common" module, call user_file_selection function
+            # This will get a list of files in --yaml_dir directory and prompt user to select one
+            args.device_file = user_file_selection(args.yaml_dir)
+        else:
+            print("Must provide one of following parameters --device_file or --yaml_dir, Aborting")
+            raise SystemExit
 
     # Read device details from file
     fgs = read_device_file(args.device_file)
