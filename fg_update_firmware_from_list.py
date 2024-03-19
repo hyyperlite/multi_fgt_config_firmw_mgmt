@@ -20,18 +20,15 @@ fortigates:
     password: fortinet
     apikey: ghhwmpbd89Hj14563gj4s84r709sr0
 ------------------------------------------
-Where in the above the ip is required, if using login/password api auth then the login & password attribute is required.
-If using api key to log in then apikey is required.   If login, password and apikey is all defined then apikey will
-be used over login/password for api calls.  Also note, that other attributes may be defined under each fortigate
-attribute and will be ignored.  Additionally, other top level attributes besides "fortigates" may be defined and will
-be ignored.
+Image upgrade via API on the FortiGate requires that you must login with apikey.  It will not allow upgrade if logged
+in via login/password even if logged in with super_admin profile user. In the above example, only fg-1 and fg-3 would
+be possible to be upgraded via this script.
 """
-
 
 from modules.fortigate_api_utils import *
 from modules.common import *
-import argparse
 from str2bool import str2bool
+import argparse
 import yaml
 import os
 import sys
@@ -41,11 +38,11 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--device_file', type=str, help="yaml file with device data")
 parser.add_argument('--yaml_dir', type=str, help='Instead of --device_file may pass a directory containing yaml files \
-                      will then be prompted to select a file from this dir at runtime.')
+                       will then be prompted to select a file from this dir at runtime.')
 parser.add_argument('--upgrade_source', type=str, choices=['file', 'fortiguard'])
 parser.add_argument('--img_ver_rev', type=str, default=None,
                     help='The value assigned to this parameter will depend on the value selected in the '
-                         '--upgrade_source attribute.  If --upgrade_source is set to "file" then this attributed'
+                         '--upgrade_source attribute.  If --upgrade_source is set to "file" then this value'
                          'should be a filesystem path to an FOS image file.   If --upgrade_source is set to "fortiguard'
                          'then this attribute should be set to a value containing an FOS image versions such as'
                          '"7.2.6".')
@@ -110,7 +107,7 @@ if __name__ == '__main__':
     else:
         print(f'Unsupported --upgrade_source defined: {args.upgrade_source}, '
               f'currently only support "file" or "fortiguard", aborting')
-        sys.exit()
+        
 
     # If skip_list provided attempt to read the skip words to python list()
     if args.skip_list:

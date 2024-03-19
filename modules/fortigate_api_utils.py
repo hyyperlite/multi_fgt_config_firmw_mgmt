@@ -135,14 +135,6 @@ class FortiGateApiUtils:
             # Upgrade firmware image
             print(f'  Sending image {image_source} to {self.device["name"]}: ', end='')
 
-            # data = {
-            #         'source': 'upload',
-            #         'scope': 'global',
-            #         'ignore_invalid_signature': 'true',
-            #         'file_content': img64
-            # }
-            # Uploading image file can take quite some time depending on connection,
-            # changing the api timeout value from default to 10min temporarily for this request.
             self.api.timeout = 600
             code, msg = self.api.post('/monitor/system/firmware/upgrade', vdom='root', source='upload',
                                           scope='global', ignore_invalid_sinature='true', file_content=img64)
