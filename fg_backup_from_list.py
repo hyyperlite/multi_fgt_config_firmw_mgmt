@@ -1,6 +1,7 @@
 """
 Nick Petersen  77npete@gmail.com
 
+
 Receive a list of FortiGates including hostname/IP, admin user, password and/or apikey
 For each fortigate in the list get config backup via api call and store that config to file.
 
