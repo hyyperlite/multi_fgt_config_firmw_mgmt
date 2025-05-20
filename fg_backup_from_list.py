@@ -52,6 +52,7 @@ from str2bool import str2bool
 import os
 import sys
 import datetime
+import json
 
 
 # Arguments
@@ -158,6 +159,13 @@ if __name__ == '__main__':
         device_details = fgs['fortigates'][fg]
         if 'name' not in device_details:
             device_details['name'] = fg
+
+        if 'login' not in device_details:
+            if 'apikey' in device_details:
+                device_details['login'] = 'apiadmin'
+            else:
+                raise ValueError("Neither \"login\" no \"apikey\" provided")
+
 
         # Create instances of fg_api_utils with device details
         fgt = FortiGateApiUtils(device=device_details, verbose=args.verbose, debug=args.debug)

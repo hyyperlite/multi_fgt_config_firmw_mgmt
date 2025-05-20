@@ -21,7 +21,7 @@ class FortiGateApiUtils:
     API_DIS_REQ_WARNINGS = True
 
     # class initializer
-    def __init__(self, device: dict = None, verbose: bool = True, debug: bool = False):
+    def __init__(self, device: dict = None, verbose: bool = True, debug: bool = True):
         self.verbose = verbose
         self.debug = debug
         self.device = device
@@ -48,6 +48,7 @@ class FortiGateApiUtils:
         # pyfgt login doesn't seem to validate that the apikey is valid on the target host
         # thus we run a quick api get call to verify authentication before return result
         if self.api.api_key_used:
+            print('using apikey')
             self.api.debug = False # Since this is not a user requested check we want to not output debug to stdout
             code, msg = self.api.get('monitor/system/status')
             self.api.debug = self.debug  # reset the debug status to whatever was last defined
@@ -71,11 +72,11 @@ class FortiGateApiUtils:
 
     # Method to get FG instance backup and write it to backup_dir with timestamp and tag
     def backup_to_file(self, backup_dir, date: str = '', file_tag: str = ''):
-        response = self.api.get('/monitor/system/config/backup', 'scope=global')
+        response = self.api.post('/monitor/system/config/backup', 'scope=global')
         # Need to extract data from response object at second position of returned tuple
-        config = response[1].content.decode('ASCII')
 
         # Very simple check for validity of returned file
+        config = response[1].content.decode('ASCII')
         if not config.startswith('#config-version'):
             return False, 'Backup file check, file may not be valid config'
 

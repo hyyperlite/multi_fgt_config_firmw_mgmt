@@ -37,7 +37,7 @@ def user_file_selection(fdir):
     try:
         fdir_files = os.listdir(fdir)
     except OSError as e:
-        print(f'Error opening yaml file directory {fdir}, aborting: {e}')
+        print(f'Error opening device file directory {fdir}, aborting: {e}')
         raise SystemExit
 
     print('Select a device file to use for this operation:')
