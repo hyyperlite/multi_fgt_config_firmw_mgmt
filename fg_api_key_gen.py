@@ -21,7 +21,7 @@ exist.  If they do not, it will use SSH (paramiko) to SSH to the FG, login
 with admin/password and create the necessary accprof and api-user;
 and generate/retrieve an api key for the device.
 
-Note: For restoring config to FG, you must user pre-existing "super_admin" accprof.
+Note: For restoring config to FG, you must use pre-existing "super_admin" accprof.
 Thus "super_admin" is the default. If you use the default "super_admin" accprof, then
 checking for its existence are skipped because it is default and cannot be deleted in FG.
 
